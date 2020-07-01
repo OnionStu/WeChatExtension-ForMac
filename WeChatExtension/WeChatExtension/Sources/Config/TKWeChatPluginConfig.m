@@ -8,32 +8,20 @@
 
 #import "TKWeChatPluginConfig.h"
 #import "TKRemoteControlModel.h"
-#import "TKAutoReplyModel.h"
+#import "YMAutoReplyModel.h"
 #import "TKIgnoreSessonModel.h"
 #import "WeChatPlugin.h"
+#import "YMIMContactsManager.h"
 
-static NSString * const kTKPreventRevokeEnableKey = @"kTKPreventRevokeEnableKey";
-static NSString * const kTKPreventSelfRevokeEnableKey = @"kTKPreventSelfRevokeEnableKey";
-static NSString * const kTKPreventAsyncRevokeKey = @"kTKPreventAsyncRevokeKey";
-static NSString * const KPreventAsyncRevokeSignal = @"KPreventAsyncRevokeSignal";
-static NSString * const KPreventAsyncRevokeChatRoom = @"KPreventAsyncRevokeChatRoom";
-static NSString * const kTKAutoReplyEnableKey = @"kTKAutoReplyEnableKey";
-static NSString * const kTKAutoAuthEnableKey = @"kTKAutoAuthEnableKey";
-static NSString * const kTKAutoLoginEnableKey = @"kTKAutoLoginEnableKey";
-static NSString * const kTKOnTopKey = @"kTKOnTopKey";
-static NSString * const kTKForbidCheckVersionKey = @"kTKForbidCheckVersionKey";
-static NSString * const kTKAlfredEnableKey = @"kTKAlfredEnableKey";
-static NSString * const kTKCheckUpdateWechatEnableKey = @"kTKCheckUpdateWechatEnableKey";
-static NSString * const kTKSystemBrowserEnableKey = @"kTKSystemBrowserEnableKey";
 static NSString * const kTKWeChatResourcesPath = @"/Applications/WeChat.app/Contents/MacOS/WeChatExtension.framework/Resources/";
-static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubusercontent.com/MustangYM/WeChatExtension-ForMac/master/WeChatExtension/WeChatExtension/Info.plist";
+static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubusercontent.com/MustangYM/WeChatExtension-ForMac/master/WeChatExtension/WeChatExtension/Base.lproj/Info.plist";
 
 @interface TKWeChatPluginConfig ()
 
 @property (nonatomic, copy) NSString *remoteControlPlistFilePath;
 @property (nonatomic, copy) NSString *autoReplyPlistFilePath;
 @property (nonatomic, copy) NSString *ignoreSessionPlistFilePath;
-
+@property (nonatomic, copy) NSString *quitMemberPlistPath;
 @property (nonatomic, copy) NSDictionary *localInfoPlist;
 @property (nonatomic, copy) NSDictionary *romoteInfoPlist;
 
@@ -41,124 +29,69 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
 
 @implementation TKWeChatPluginConfig
 
-+ (instancetype)sharedConfig {
+@dynamic preventRevokeEnable;
+@dynamic preventSelfRevokeEnable;
+@dynamic preventAsyncRevokeToPhone;
+@dynamic preventAsyncRevokeSignal;
+@dynamic preventAsyncRevokeChatRoom;
+@dynamic autoReplyEnable;
+@dynamic autoAuthEnable;
+@dynamic launchFromNew;
+@dynamic quitMonitorEnable;
+@dynamic autoLoginEnable;
+@dynamic onTop;
+@dynamic multipleSelectionEnable;
+@dynamic forbidCheckVersion;
+@dynamic alfredEnable;
+@dynamic checkUpdateWechatEnable;
+@dynamic systemBrowserEnable;
+@dynamic currentUserName;
+@dynamic isAllowMoreOpenBaby;
+@dynamic darkMode;
+@dynamic blackMode;
+@dynamic pinkMode;
+@dynamic groupMultiColorMode;
+@dynamic isThemeLoaded;
+
++ (instancetype)sharedConfig
+{
     static TKWeChatPluginConfig *config = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        config = [[TKWeChatPluginConfig alloc] init];
+        config = [TKWeChatPluginConfig standardUserDefaults];
     });
     return config;
 }
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        _preventRevokeEnable = [[NSUserDefaults standardUserDefaults] boolForKey:kTKPreventRevokeEnableKey];
-        _preventSelfRevokeEnable = [[NSUserDefaults standardUserDefaults] boolForKey:kTKPreventSelfRevokeEnableKey];
-        _autoReplyEnable = [[NSUserDefaults standardUserDefaults] boolForKey:kTKAutoReplyEnableKey];
-        _autoAuthEnable = [[NSUserDefaults standardUserDefaults] boolForKey:kTKAutoAuthEnableKey];
-        _autoLoginEnable = [[NSUserDefaults standardUserDefaults] boolForKey:kTKAutoLoginEnableKey];
-        _onTop = [[NSUserDefaults standardUserDefaults] boolForKey:kTKOnTopKey];
-        _forbidCheckVersion = [[NSUserDefaults standardUserDefaults] boolForKey:kTKForbidCheckVersionKey];
-        _alfredEnable = [[NSUserDefaults standardUserDefaults] boolForKey:kTKAlfredEnableKey];
-        _checkUpdateWechatEnable = [[NSUserDefaults standardUserDefaults] boolForKey:kTKCheckUpdateWechatEnableKey];
-        _systemBrowserEnable = [[NSUserDefaults standardUserDefaults] boolForKey:kTKSystemBrowserEnableKey];
-        _preventAsyncRevokeToPhone = [[NSUserDefaults standardUserDefaults] boolForKey:kTKPreventAsyncRevokeKey];
-        _preventAsyncRevokeSignal = [[NSUserDefaults standardUserDefaults] boolForKey:KPreventAsyncRevokeSignal];
-        _preventAsyncRevokeChatRoom = [[NSUserDefaults standardUserDefaults] boolForKey:KPreventAsyncRevokeChatRoom];
-    }
-    return self;
-}
-
-- (void)setPreventRevokeEnable:(BOOL)preventRevokeEnable {
-    _preventRevokeEnable = preventRevokeEnable;
-    [[NSUserDefaults standardUserDefaults] setBool:preventRevokeEnable forKey:kTKPreventRevokeEnableKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (void)setPreventSelfRevokeEnable:(BOOL)preventSelfRevokeEnable {
-    _preventSelfRevokeEnable = preventSelfRevokeEnable;
-    [[NSUserDefaults standardUserDefaults] setBool:preventSelfRevokeEnable forKey:kTKPreventSelfRevokeEnableKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (void)setAutoReplyEnable:(BOOL)autoReplyEnable {
-    _autoReplyEnable = autoReplyEnable;
-    [[NSUserDefaults standardUserDefaults] setBool:autoReplyEnable forKey:kTKAutoReplyEnableKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (void)setAutoAuthEnable:(BOOL)autoAuthEnable {
-    _autoAuthEnable = autoAuthEnable;
-    [[NSUserDefaults standardUserDefaults] setBool:autoAuthEnable forKey:kTKAutoAuthEnableKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (void)setAutoLoginEnable:(BOOL)autoLoginEnable {
-    _autoLoginEnable = autoLoginEnable;
-    [[NSUserDefaults standardUserDefaults] setBool:autoLoginEnable forKey:kTKAutoLoginEnableKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (void)setOnTop:(BOOL)onTop {
-    _onTop = onTop;
-    [[NSUserDefaults standardUserDefaults] setBool:_onTop forKey:kTKOnTopKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (void)setForbidCheckVersion:(BOOL)forbidCheckVersion {
-    _forbidCheckVersion = forbidCheckVersion;
-    [[NSUserDefaults standardUserDefaults] setBool:_forbidCheckVersion forKey:kTKForbidCheckVersionKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (void)setAlfredEnable:(BOOL)alfredEnable {
-    _alfredEnable = alfredEnable;
-    [[NSUserDefaults standardUserDefaults] setBool:_alfredEnable forKey:kTKAlfredEnableKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (void)setCheckUpdateWechatEnable:(BOOL)checkUpdateWechatEnable {
-    _checkUpdateWechatEnable = checkUpdateWechatEnable;
-    [[NSUserDefaults standardUserDefaults] setBool:_checkUpdateWechatEnable forKey:kTKCheckUpdateWechatEnableKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (void)setSystemBrowserEnable:(BOOL)systemBrowserEnable {
-    _systemBrowserEnable = systemBrowserEnable;
-    [[NSUserDefaults standardUserDefaults] setBool:_systemBrowserEnable forKey:kTKSystemBrowserEnableKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (void)setPreventAsyncRevokeToPhone:(BOOL)preventAsyncRevokeToPhone {
-    _preventAsyncRevokeToPhone = preventAsyncRevokeToPhone;
-    [[NSUserDefaults standardUserDefaults] setBool:_preventAsyncRevokeToPhone forKey:kTKPreventAsyncRevokeKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (void)setPreventAsyncRevokeSignal:(BOOL)preventAsyncRevokeSignal {
-    _preventAsyncRevokeSignal = preventAsyncRevokeSignal;
-    [[NSUserDefaults standardUserDefaults] setBool:_preventAsyncRevokeSignal forKey:KPreventAsyncRevokeSignal];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (void)setPreventAsyncRevokeChatRoom:(BOOL)preventAsyncRevokeChatRoom {
-    _preventAsyncRevokeChatRoom = preventAsyncRevokeChatRoom;
-    [[NSUserDefaults standardUserDefaults] setBool:_preventAsyncRevokeChatRoom forKey:KPreventAsyncRevokeChatRoom];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
 #pragma mark - 自动回复
-- (NSArray *)autoReplyModels {
+- (NSArray *)autoReplyModels
+{
     if (!_autoReplyModels) {
-        _autoReplyModels = [self getModelsWithClass:[TKAutoReplyModel class] filePath:self.autoReplyPlistFilePath];
+        _autoReplyModels = [self getModelsWithClass:[YMAutoReplyModel class] filePath:self.autoReplyPlistFilePath];
     }
     return _autoReplyModels;
 }
 
-- (void)saveAutoReplyModels {
+- (YMAIAutoModel *)AIReplyModel
+{
+    NSString *filePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"AIAutoReply.data"];
+    return [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+}
+
+- (void)saveAIAutoReplyModel:(YMAIAutoModel *)model
+{
+    if (!model) {
+        return;
+    }
+    NSString *temp = NSTemporaryDirectory();
+    NSString *filePath = [temp stringByAppendingPathComponent:@"AIAutoReply.data"];
+    [NSKeyedArchiver archiveRootObject:model toFile:filePath];
+}
+
+- (void)saveAutoReplyModels
+{
     NSMutableArray *needSaveModels = [NSMutableArray array];
-    [_autoReplyModels enumerateObjectsUsingBlock:^(TKAutoReplyModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
+    [_autoReplyModels enumerateObjectsUsingBlock:^(YMAutoReplyModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
         if (model.hasEmptyKeywordOrReplyContent) {
             model.enable = NO;
             model.enableGroupReply = NO;
@@ -171,7 +104,8 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
 }
 
 #pragma mark - 远程控制
-- (NSArray *)remoteControlModels {
+- (NSArray *)remoteControlModels
+{
     if (!_remoteControlModels) {
         __block BOOL needSaveRemoteControlModels = NO;
         _remoteControlModels = ({
@@ -198,7 +132,8 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
     return _remoteControlModels;
 }
 
-- (void)saveRemoteControlModels {
+- (void)saveRemoteControlModels
+{
     NSMutableArray *needSaveModels = [NSMutableArray array];
     [_remoteControlModels enumerateObjectsUsingBlock:^(NSArray *subModels, NSUInteger idx, BOOL * _Nonnull stop) {
         NSMutableArray *newSubModels = [NSMutableArray array];
@@ -211,16 +146,18 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
 }
 
 #pragma mark - 置底
-- (NSArray *)ignoreSessionModels {
+- (NSArray *)ignoreSessionModels
+{
     if (!_ignoreSessionModels) {
         _ignoreSessionModels = [self getModelsWithClass:[TKIgnoreSessonModel class] filePath:self.ignoreSessionPlistFilePath];
     }
     return _ignoreSessionModels;
 }
 
-- (void)saveIgnoreSessionModels {
+- (void)saveIgnoreSessionModels
+{
     NSMutableArray *needSaveArray = [NSMutableArray array];
-    [self.ignoreSessionModels enumerateObjectsUsingBlock:^(TKBaseModel *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    [self.ignoreSessionModels enumerateObjectsUsingBlock:^(YMBaseModel *obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [needSaveArray addObject:obj.dictionary];
     }];
     
@@ -229,7 +166,8 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
 }
 
 #pragma mark - 选中的会话
-- (NSMutableArray *)selectSessions {
+- (NSMutableArray *)selectSessions
+{
     if (!_selectSessions) {
         _selectSessions = [NSMutableArray array];
     }
@@ -237,14 +175,16 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
 }
 
 #pragma mark - 撤回的消息集合
-- (NSMutableSet *)revokeMsgSet {
+- (NSMutableSet *)revokeMsgSet
+{
     if (!_revokeMsgSet) {
         _revokeMsgSet = [NSMutableSet set];
     }
     return _revokeMsgSet;
 }
 
-- (NSMutableSet *)unreadSessionSet {
+- (NSMutableSet *)unreadSessionSet
+{
     if (!_unreadSessionSet) {
         _unreadSessionSet = [NSMutableSet set];
     }
@@ -252,29 +192,62 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
 }
 
 #pragma mark - 获取沙盒上的 plist 文件，包括：远程控制，自动回复，置底列表。
-- (NSString *)remoteControlPlistFilePath {
+- (NSString *)remoteControlPlistFilePath
+{
     if (!_remoteControlPlistFilePath) {
         _remoteControlPlistFilePath = [self getSandboxFilePathWithPlistName:@"TKRemoteControlCommands.plist"];
     }
     return _remoteControlPlistFilePath;
 }
 
-- (NSString *)autoReplyPlistFilePath {
-    if (!_autoReplyPlistFilePath) {
-        _autoReplyPlistFilePath = [self getSandboxFilePathWithPlistName:@"TKAutoReplyModels.plist"];
-    }
-    return _autoReplyPlistFilePath;
-}
-
-- (NSString *)ignoreSessionPlistFilePath {
+- (NSString *)ignoreSessionPlistFilePath
+{
     if (!_ignoreSessionPlistFilePath) {
         _ignoreSessionPlistFilePath = [self getSandboxFilePathWithPlistName:@"TKIgnoreSessons.plist"];
     }
     return _ignoreSessionPlistFilePath;
 }
 
+- (NSString *)autoReplyPlistFilePath
+{
+    if (!_autoReplyPlistFilePath) {
+        _autoReplyPlistFilePath = [self getSandboxFilePathWithPlistName:@"YMAutoReplyModels.plist"];
+    }
+    return _autoReplyPlistFilePath;
+}
+
+- (NSString *)quitMemberPlistPath
+{
+    if (!_quitMemberPlistPath) {
+        _quitMemberPlistPath = [self getSandboxFilePathWithPlistName:@"quitMembersPlist.plist"];
+    }
+    return _quitMemberPlistPath;
+}
+
+#pragma mark -
+- (void)saveMonitorQuitMembers:(NSMutableArray *)members
+{
+    if (!members) {
+        return;
+    }
+    
+    NSMutableArray *needSaveArray = [NSMutableArray array];
+    [members enumerateObjectsUsingBlock:^(YMMonitorChildInfo *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [needSaveArray addObject:obj.dictionary];
+    }];
+    
+    [needSaveArray writeToFile:self.quitMemberPlistPath atomically:YES];
+}
+
+- (NSMutableArray *)getMonitorQuitMembers
+{
+    NSMutableArray *arr = [self getMonitorQuitModelsWithClass:[YMMonitorChildInfo class] filePath:self.quitMemberPlistPath];
+    return arr;
+}
+
 #pragma mark - 获取本地 & github 上的小助手 info 信息
-- (NSDictionary *)localInfoPlist {
+- (NSDictionary *)localInfoPlist
+{
     if (!_localInfoPlist) {
         NSString *localInfoPath = [kTKWeChatResourcesPath stringByAppendingString:@"info.plist"];
         _localInfoPlist = [NSDictionary dictionaryWithContentsOfFile:localInfoPath];
@@ -282,7 +255,8 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
     return _localInfoPlist;
 }
 
-- (NSDictionary *)romoteInfoPlist {
+- (NSDictionary *)romoteInfoPlist
+{
     if (!_romoteInfoPlist) {
         NSURL *url = [NSURL URLWithString:kTKWeChatRemotePlistPath];
         _romoteInfoPlist = [NSDictionary dictionaryWithContentsOfURL:url];
@@ -291,7 +265,22 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
 }
 
 #pragma mark - common
-- (NSMutableArray *)getModelsWithClass:(Class)class filePath:(NSString *)filePath {
+
+- (NSMutableArray *)getMonitorQuitModelsWithClass:(Class)class filePath:(NSString *)filePath
+{
+    NSArray *originModels = [NSArray arrayWithContentsOfFile:filePath];
+    NSMutableArray *newModels = [NSMutableArray array];
+    
+    __weak Class weakClass = class;
+    [originModels enumerateObjectsUsingBlock:^(NSDictionary *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        YMMonitorChildInfo *model = [[weakClass alloc] initWithDict:obj];
+        [newModels addObject:model];
+    }];
+    return newModels;
+}
+
+- (NSMutableArray *)getModelsWithClass:(Class)class filePath:(NSString *)filePath
+{
     NSArray *originModels = [NSArray arrayWithContentsOfFile:filePath];
     NSMutableArray *newModels = [NSMutableArray array];
     
@@ -303,7 +292,8 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
     return newModels;
 }
 
-- (NSString *)getSandboxFilePathWithPlistName:(NSString *)plistName {
+- (NSString *)getSandboxFilePathWithPlistName:(NSString *)plistName
+{
     NSFileManager *manager = [NSFileManager defaultManager];
     NSString *currentUserName = [objc_getClass("CUtility") GetCurrentUserName];
     
@@ -328,5 +318,78 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
     return resourcesFilePath;
 }
 
-@end
 
+- (PluginLanguageType)languageType
+{
+    NSArray *languages = [NSLocale preferredLanguages];
+    PluginLanguageType type = PluginLanguageTypeEN;;
+    if (languages.count > 0) {
+        NSString *language = languages.firstObject;
+        if ([language hasPrefix:@"zh"]) {
+            type = PluginLanguageTypeZH;
+        }
+    }
+    return type;
+}
+
+- (NSString *)languageSetting:(NSString *)chinese english:(NSString *)english
+{
+    if ([TKWeChatPluginConfig sharedConfig].languageType == PluginLanguageTypeZH) {
+        return chinese;
+    }
+    return english;
+}
+
+- (BOOL)usingTheme {
+    return self.darkMode || self.blackMode || self.pinkMode;
+}
+
+- (BOOL)usingDarkTheme {
+    return self.darkMode || self.blackMode;
+}
+
+- (NSColor *)mainTextColor {
+    if (![self usingTheme]) {
+        return kDefaultTextColor;
+    }
+    return self.darkMode ? kDarkModeTextColor : (self.blackMode ? kBlackModeTextColor : kPinkModeTextColor);
+}
+
+- (NSColor *)mainBackgroundColor {
+    if (![self usingTheme]) {
+        return NSColor.clearColor;
+    }
+    return self.darkMode ? kDarkBacgroundColor : (self.blackMode ? kBlackBackgroundColor : kPinkBacgroundColor);
+}
+
+- (NSColor *)mainIgnoredTextColor {
+    if (![self usingTheme]) {
+        return kDefaultIgnoredTextColor;
+    }
+    return self.darkMode ? kDarkModeIgnoredTextColor : (self.blackMode ? kBlackModeIgnoredTextColor : kPinkModeIgnoredTextColor);
+}
+
+- (NSColor *)mainIgnoredBackgroundColor {
+    if (![self usingTheme]) {
+        return kDefaultIgnoredBackgroundColor;
+    }
+    return self.darkMode ? kDarkModeIgnoredBackgroundColor : (self.blackMode ? kBlackModeIgnoredBackgroundColor : kPinkModeIgnoredBackgroundColor);
+}
+
+- (NSColor *)mainSeperatorColor {
+    return self.darkMode ? kRGBColor(147, 148, 248, 0.2) : (self.blackMode ? kRGBColor(128,128,128, 0.5) : kRGBColor(147, 148, 248, 0.2));
+}
+
+- (NSColor *)mainScrollerColor {
+    return self.darkMode ? kRGBColor(33, 48, 64, 1.0) : (self.blackMode ? kRGBColor(128,128,128, 0.5) : NSColor.clearColor);
+}
+
+- (NSColor *)mainDividerColor {
+    return self.darkMode ? kRGBColor(71, 69, 112, 0.5) : (self.blackMode ? kRGBColor(128,128,128, 0.7) : kRGBColor(71, 69, 112, 0.5));
+}
+
+- (NSColor *)mainChatCellBackgroundColor {
+    return self.darkMode ? kRGBColor(33, 48, 64, 1.0) : (self.blackMode ? kRGBColor(38, 38, 38, 1.0) : nil);
+}
+
+@end

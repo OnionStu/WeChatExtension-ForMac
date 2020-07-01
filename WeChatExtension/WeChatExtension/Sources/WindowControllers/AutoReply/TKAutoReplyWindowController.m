@@ -9,6 +9,7 @@
 #import "TKAutoReplyWindowController.h"
 #import "TKAutoReplyContentView.h"
 #import "TKAutoReplyCell.h"
+#import "YMThemeManager.h"
 
 @interface TKAutoReplyWindowController () <NSWindowDelegate, NSTableViewDelegate, NSTableViewDataSource>
 
@@ -26,14 +27,16 @@
 
 @implementation TKAutoReplyWindowController
 
-- (void)windowDidLoad {
+- (void)windowDidLoad
+{
     [super windowDidLoad];
     
     [self initSubviews];
     [self setup];
 }
 
-- (void)showWindow:(id)sender {
+- (void)showWindow:(id)sender
+{
     [super showWindow:sender];
     [self.tableView reloadData];
     [self.contentView setHidden:YES];
@@ -45,7 +48,8 @@
     }
 }
 
-- (void)initSubviews {
+- (void)initSubviews
+{
     NSScrollView *scrollView = ({
         NSScrollView *scrollView = [[NSScrollView alloc] init];
         scrollView.hasVerticalScroller = YES;
@@ -62,7 +66,7 @@
         tableView.delegate = self;
         tableView.dataSource = self;
         NSTableColumn *column = [[NSTableColumn alloc] init];
-        column.title = TKLocalizedString(@"assistant.autoReply.list");
+        column.title = YMLocalizedString(@"assistant.autoReply.list");
         column.width = 200;
         [tableView addTableColumn:column];
         
@@ -95,18 +99,18 @@
     });
     
     self.enableButton = ({
-        NSButton *btn = [NSButton tk_checkboxWithTitle:TKLocalizedString(@"assistant.autoReply.enable") target:self action:@selector(clickEnableBtn:)];
+        NSButton *btn = [NSButton tk_checkboxWithTitle:YMLocalizedString(@"assistant.autoReply.enable") target:self action:@selector(clickEnableBtn:)];
         btn.frame = NSMakeRect(130, 20, 130, 20);
         btn.state = [[TKWeChatPluginConfig sharedConfig] autoReplyEnable];
-        
+        [YMThemeManager changeButtonTheme:btn];
         btn;
     });
     
     self.alert = ({
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:TKLocalizedString(@"assistant.autoReply.alert.confirm")];
-        [alert setMessageText:TKLocalizedString(@"assistant.autoReply.alert.title")];
-        [alert setInformativeText:TKLocalizedString(@"assistant.autoReply.alert.content")];
+        [alert addButtonWithTitle:YMLocalizedString(@"assistant.autoReply.alert.confirm")];
+        [alert setMessageText:YMLocalizedString(@"assistant.autoReply.alert.title")];
+        [alert setInformativeText:YMLocalizedString(@"assistant.autoReply.alert.content")];
         
         alert;
     });
@@ -120,8 +124,9 @@
                                            self.enableButton]];
 }
 
-- (void)setup {
-    self.window.title = TKLocalizedString(@"assistant.autoReply.title");
+- (void)setup
+{
+    self.window.title = YMLocalizedString(@"assistant.autoReply.title");
     self.window.contentView.layer.backgroundColor = [kBG1 CGColor];
     [self.window.contentView.layer setNeedsDisplay];
     
@@ -143,7 +148,8 @@
  关闭窗口事件
  
  */
-- (void)windowShouldClosed:(NSNotification *)notification {
+- (void)windowShouldClosed:(NSNotification *)notification
+{
     if (notification.object != self.window) {
         return;
     }
@@ -151,17 +157,19 @@
 
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - addButton & reduceButton ClickAction
-- (void)addModel {
+- (void)addModel
+{
     if (self.contentView.hidden) {
         self.contentView.hidden = NO;
     }
     __block NSInteger emptyModelIndex = -1;
-    [self.autoReplyModels enumerateObjectsUsingBlock:^(TKAutoReplyModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
+    [self.autoReplyModels enumerateObjectsUsingBlock:^(YMAutoReplyModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
         if (model.hasEmptyKeywordOrReplyContent) {
             emptyModelIndex = idx;
             *stop = YES;
@@ -170,7 +178,7 @@
     
     if (self.autoReplyModels.count > 0 && emptyModelIndex != -1) {
         [self.alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
-            if(returnCode == NSAlertFirstButtonReturn){
+            if (returnCode == NSAlertFirstButtonReturn) {
                 if (self.tableView.selectedRow != -1) {
                     [self.tableView deselectRow:self.tableView.selectedRow];
                 }
@@ -180,7 +188,7 @@
         return;
     };
     
-    TKAutoReplyModel *model = [[TKAutoReplyModel alloc] init];
+    YMAutoReplyModel *model = [[YMAutoReplyModel alloc] init];
     [self.autoReplyModels addObject:model];
     [self.tableView reloadData];
     self.contentView.model = model;
@@ -188,7 +196,8 @@
     [self.tableView selectRowIndexes:[NSIndexSet indexSetWithIndex:self.autoReplyModels.count - 1] byExtendingSelection:YES];
 }
 
-- (void)reduceModel {
+- (void)reduceModel
+{
     NSInteger index = self.tableView.selectedRow;
     if (index > -1) {
         [self.autoReplyModels removeObjectAtIndex:index];
@@ -202,16 +211,19 @@
     }
 }
 
-- (void)clickEnableBtn:(NSButton *)btn {
+- (void)clickEnableBtn:(NSButton *)btn
+{
     [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFY_AUTO_REPLY_CHANGE object:nil];
 }
 
 #pragma mark - NSTableViewDataSource && NSTableViewDelegate
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
+{
     return self.autoReplyModels.count;
 }
 
-- (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
+- (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
+{
     TKAutoReplyCell *cell = [[TKAutoReplyCell alloc] init];
     cell.frame = NSMakeRect(0, 0, self.tableView.frame.size.width, 40);
     cell.model = self.autoReplyModels[row];
@@ -222,21 +234,23 @@
     return cell;
 }
 
-- (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
+- (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row
+{
     return 50;
 }
 
-- (void)tableViewSelectionDidChange:(NSNotification *)notification {
+- (void)tableViewSelectionDidChange:(NSNotification *)notification
+{
     NSTableView *tableView = notification.object;
     self.contentView.hidden = tableView.selectedRow == -1;
     self.reduceButton.enabled = tableView.selectedRow != -1;
     
     if (tableView.selectedRow != -1) {
-        TKAutoReplyModel *model = self.autoReplyModels[tableView.selectedRow];
+        YMAutoReplyModel *model = self.autoReplyModels[tableView.selectedRow];
         self.contentView.model = model;
         self.lastSelectIndex = tableView.selectedRow;
         __block NSInteger emptyModelIndex = -1;
-        [self.autoReplyModels enumerateObjectsUsingBlock:^(TKAutoReplyModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
+        [self.autoReplyModels enumerateObjectsUsingBlock:^(YMAutoReplyModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
             if (model.hasEmptyKeywordOrReplyContent) {
                 emptyModelIndex = idx;
                 *stop = YES;
@@ -245,7 +259,7 @@
         
         if (emptyModelIndex != -1 && tableView.selectedRow != emptyModelIndex) {
             [self.alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
-                if(returnCode == NSAlertFirstButtonReturn){
+                if (returnCode == NSAlertFirstButtonReturn) {
                     if (self.tableView.selectedRow != -1) {
                         [self.tableView deselectRow:self.tableView.selectedRow];
                     }
