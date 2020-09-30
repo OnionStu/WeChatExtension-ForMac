@@ -8,7 +8,8 @@
 
 #import "YMThemeManager.h"
 #import "YMDeviceHelper.h"
-#import "TKWeChatPluginConfig.h"
+#import "YMWeChatPluginConfig.h"
+#import "NSWindow+fuzzy.h"
 
 static const NSString *DEVICE_FINGERPRINT = @"DEVICE_FINGERPRINT";
 static const NSString *DEVICE_THEME_MODE = @"DEVICE_THEME_MODE";
@@ -16,6 +17,7 @@ static const NSString *DEVICE_THEME_MODE = @"DEVICE_THEME_MODE";
 @interface YMThemeManager()
 @property (nonatomic, strong) NSArray *colors;
 @property (nonatomic, copy) NSString *fingerprint;
+@property (nonatomic, strong) NSColor *original;
 @end
 
 @implementation YMThemeManager
@@ -44,9 +46,9 @@ static const NSString *DEVICE_THEME_MODE = @"DEVICE_THEME_MODE";
 
 - (NSString *)_modelValue
 {
-    if ([TKWeChatPluginConfig sharedConfig].darkMode) {
+    if ([YMWeChatPluginConfig sharedConfig].darkMode) {
         return @"1";
-    } else if ([TKWeChatPluginConfig sharedConfig].pinkMode) {
+    } else if ([YMWeChatPluginConfig sharedConfig].pinkMode) {
         return @"2";
     }
     return @"0";
@@ -127,12 +129,48 @@ static const NSString *DEVICE_THEME_MODE = @"DEVICE_THEME_MODE";
 
 + (void)changeButtonTheme:(NSButton *)button
 {
-    if (![TKWeChatPluginConfig sharedConfig].usingDarkTheme) {
+    if (![YMWeChatPluginConfig sharedConfig].usingDarkTheme) {
         return;
     }
     
     NSMutableAttributedString *returnValue = [[NSMutableAttributedString alloc] initWithString:button.title attributes:@{NSForegroundColorAttributeName :[NSColor whiteColor]}];
     button.attributedTitle = returnValue;
+}
+
+#pragma mark - EffectView
++ (NSVisualEffectView *)creatFuzzyEffectView
+{
+    if (!YMWeChatPluginConfig.sharedConfig.fuzzyMode) {
+        return nil;
+    }
+    
+    NSVisualEffectView *effectView = [[NSVisualEffectView alloc] init];
+    effectView.blendingMode = NSVisualEffectBlendingModeBehindWindow;
+    if (@available(macOS 10.11, *)) {
+        effectView.material = NSVisualEffectMaterialDark;
+    } else {
+        // Fallback on earlier versions
+    }
+    effectView.state = NSVisualEffectStateActive;
+    return effectView;
+}
+
++ (void)changeEffectViewMode:(NSVisualEffectView *)effectView
+{
+    if (!YMWeChatPluginConfig.sharedConfig.fuzzyMode) {
+        return;
+    }
+    
+    if (!effectView) {
+        return ;
+    }
+    effectView.blendingMode = NSVisualEffectBlendingModeBehindWindow;
+    if (@available(macOS 10.11, *)) {
+        effectView.material = NSVisualEffectMaterialDark;
+    } else {
+        // Fallback on earlier versions
+    }
+    effectView.state = NSVisualEffectStateActive;
 }
 
 @end
