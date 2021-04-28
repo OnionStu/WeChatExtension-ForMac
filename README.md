@@ -8,7 +8,8 @@
 - 如果你希望更简约，这里提供了[简版小助手](https://github.com/MustangYM/WeChatSeptet-ForMac)，安装方式与WeChatExtension的手动安装方式一样。
 - Most users of this project are Chinese, so there is `NO ENGLISH WIKI`.
 
-## 声明
+## 声明以及常见问题
+- 暂未适配macOS11，不处理macOS11相关bug，`2021-02-08`后安装插件后`无法启动`可能是[签名问题](https://github.com/MustangYM/WeChatExtension-ForMac/issues/816)导致的!
 - 到目前为止，并未发现因使用本插件会导致封号。
 - Issues注意事项[Wiki](https://github.com/MustangYM/WeChatExtension-ForMac/wiki/Issues%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9)。
 
@@ -20,7 +21,7 @@
 - [Toptips视频介绍(゜-゜)つロ 干杯~](https://www.bilibili.com/video/BV1Xi4y1b72c?from=search&seid=863944292302073615)(基于2.5版本的小助手介绍，现在的小助手更完善)。
 - 经过两年的不间断的维护已成长为最受欢迎的`Objective-C`项目之一，请放心使用。
   - [中文榜](https://github.com/kon9chunkit/GitHub-Chinese-Top-Charts#Objective-C)。（娱乐数据，仅供参考）
-  - [OC总榜](https://github-trending.com/repo/Objective-C)。（娱乐数据，仅供参考）
+ <del> - [OC总榜](https://github-trending.com/repo/Objective-C)。（娱乐数据，仅供参考）</del>
 <p align="left">
 <img src="https://starchart.cc/MustangYM/WeChatExtension-ForMac.svg" width="800px"/>
 </p>
@@ -118,20 +119,20 @@ sudo rm -r -f WeChatExtension-ForMac && git clone --depth=1 https://github.com/M
 
 感谢 [lmk123](https://github.com/lmk123)为此项目开发的懒癌安装 [Oh My WeChat](https://github.com/lmk123/oh-my-wechat)
 
-打开`应用程序-实用工具-Terminal(终端)`，执行下面的命令安装 [Oh My WeChat](https://github.com/lmk123/oh-my-wechat)：（Oh My WeChat只需安一次，以后就只需执行 `omw -n`或`omw -g`即可）
+打开`应用程序-实用工具-Terminal(终端)`，执行下面的命令安装 [Oh My WeChat](https://github.com/lmk123/oh-my-wechat)：（Oh My WeChat只需安一次，以后就只需执行 `omw`或`omw -n`即可）
 
 ```sh
 curl -o- -L https://omw.limingkai.cn/install.sh | bash -s
 ```
 Oh My WeChat一键命令
 ```
-omw -n
+omw
 ```
 跳过检查更新的步骤，优先使用下载过的安装包安装小助手。
 ```
-omw -g
+omw -n
 ```
-默认情况下，omw 会从[国内的镜像仓库](https://gitee.com/mirrors/wechatextension-formac)检查更新及下载安装包，镜像仓库每天同步一次 [GitHub 仓库](https://github.com/MustangYM/WeChatExtension-ForMac)，检查更新时可能不会及时发现最新版本，如果要确保安装最新版本，可以添加 `-g` 参数从 GitHub 仓库检查更新及下载安装包，但由于网络不稳定，可能会失败。**注意：目前国内镜像仓库无法正常下载小助手，请使用 `omw -g` 或者 `omw load` 命令安装小助手。**
+omw 会从 [GitHub 仓库](https://github.com/MustangYM/WeChatExtension-ForMac)检查更新及下载安装包，但由于网络不稳定，下载可能会失败，但你还可以使用 `omw load` 命令安装小助手。
 
 安装完成后会自动安装微信插件，可以访问 [Oh My WeChat 的项目主页](https://github.com/lmk123/oh-my-wechat#oh-my-wechat)查看更多用法。
 
@@ -162,6 +163,12 @@ bash <(curl -sL https://git.io/JUO6r)
 <p align="center">
 <img src="https://gitee.com/MustangYM/we-chat-extension-source/raw/master/Pictures/uninstall.png" width="1500px"/>
 </p>
+
+### 卸载方式三：使用 Oh My Wechat 卸载
+如果你安装了 [Oh My WeChat](https://github.com/lmk123/oh-my-wechat#oh-my-wechat)，那么运行下面的命令即可：
+```bash
+omw un
+```
 
 
 
@@ -493,8 +500,9 @@ This project exists thanks to all the people who contribute。
 <a href="https://opencollective.com/mustangym666#backers" target="_blank"><img src="https://opencollective.com/mustangym666/backers.svg?width=890"></a>
 
 ## 交流
-- QQ①群：`741941325`。
-- QQ②群：`905526964`。
+- QQ①群：`741941325`(满)。
+- QQ②群：`905526964`(满)。
+- QQ③群：`220655053`。
 - 皮肤的颜色搭配采纳了大量朋友的反馈和建议，最终并未能统一意见，那就干脆做`两套`吧，所以才会出现`黑夜`和`深邃`两款如此相近的`暗色调主题`，所以颜色上不再接受pr。
 - 封面图的`骷髅`与`乌鸦`元素来自于`史泰龙`的电影`《The Expendables》`（敢死队）海报。
 - 插件中的`图标`、本页所有`Logo`、预览图均出自本人`蹩脚`的[Photoshop](https://www.adobe.com/products/photoshop.html)设计。
