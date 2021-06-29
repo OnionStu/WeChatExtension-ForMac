@@ -1,6 +1,6 @@
 
 <p align="center">
-<img src="https://gitee.com/MustangYM/we-chat-extension-source/raw/master/Pictures/face3.png" width="1000px"/>
+<img src="https://gitee.com/MustangYM/we-chat-extension-source/raw/master/Pictures/face1.png" width="1000px"/>
 </p>
 
 ![platform](https://img.shields.io/badge/platform-macos-lightgrey.svg)  [![release](https://img.shields.io/badge/release-v2.8.2-brightgreen.svg)](https://github.com/MustangYM/WeChatExtension-ForMac/releases)  ![support](https://img.shields.io/badge/support-wechat%202.6.1-blue.svg) 
@@ -551,6 +551,16 @@ This project exists thanks to all the people who contribute。
   <td align="center">
   <a href="https://github.com/bluelove56"><img src="https://avatars.githubusercontent.com/u/68936214?v=4" width="100px;" alt="bluelove56"/>
   <br></br><sub><b>bluelove56</b></sub>
+ 
+   </td></tr></table>
+  
+   </td></tr></table>
+   
+   <table><tr>
+   
+  <td align="center">
+  <a href="https://github.com/HenryLuoCN"><img src="https://avatars.githubusercontent.com/u/72094520?v=4" width="100px;" alt="HenryLuoCN"/>
+  <br></br><sub><b>HenryLuoCN</b></sub>
  
    </td></tr></table>
   
